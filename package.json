@@ -1,0 +1,12 @@
+{
+  "name": "graphql-js-demo",
+  "version": "0.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:bionikspoon/graphql-js-demo.git",
+  "author": "Manu Phatak <manu@thinkcerca.com>",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "graphql": "^0.11.3"
+  }
+}
