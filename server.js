@@ -1,23 +1,52 @@
-const express = require('express')
+const restify = require('restify')
 const graphqlHTTP = require('express-graphql')
-const { buildSchema } = require('graphql')
+const graphql = require('graphql')
 
-const schema = buildSchema(`
-  type Query {
-    hello: String
-  }
-`)
-
-const rootValue = {
-  hello: () => 'Hello world!'
+const mockDatabase = {
+  a: { id: 'a', name: 'alice' },
+  b: { id: 'b', name: 'bob' }
 }
 
-const app = express()
-app.use(
+const userType = new graphql.GraphQLObjectType({
+  name: 'User',
+  fields: {
+    id: { type: graphql.GraphQLString },
+    name: { type: graphql.GraphQLString }
+  }
+})
+const usersType = new graphql.GraphQLList(userType)
+
+const queryType = new graphql.GraphQLObjectType({
+  name: 'Query',
+  fields: {
+    user: {
+      type: userType,
+      args: {
+        id: { type: graphql.GraphQLString }
+      },
+      resolve: (_, { id }) => mockDatabase[id]
+    },
+    users: {
+      type: usersType,
+      resolve: () => Object.values(mockDatabase)
+    }
+  }
+})
+
+const schema = new graphql.GraphQLSchema({ query: queryType })
+
+const app = restify.createServer()
+app.post(
   '/graphql',
   graphqlHTTP({
     schema,
-    rootValue,
+    graphiql: false
+  })
+)
+app.get(
+  '/graphql',
+  graphqlHTTP({
+    schema,
     graphiql: true
   })
 )
